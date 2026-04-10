@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mandarin Learning Tool</title>
+    <style>
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background-color: #f0f4f8;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        h1, h2 { color: #2c3e50; margin-bottom: 10px; }
+        .section-container {
+            max-width: 1100px;
+            width: 100%;
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 12px;
+        }
+        .sentence-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        button {
+            cursor: pointer;
+            border: 2px solid #3498db;
+            border-radius: 8px;
+            transition: all 0.2s;
+            background-color: #ffffff;
+            color: #2980b9;
+        }
+        button:hover {
+            background-color: #3498db;
+            color: white;
+            transform: translateY(-2px);
+        }
+        .vocab-btn { padding: 15px 5px; font-size: 1.1rem; font-weight: bold; }
+        .sentence-btn {
+            padding: 15px;
+            font-size: 1.2rem;
+            text-align: left;
+            line-height: 1.6;
+        }
+        .index { font-size: 0.8rem; color: #95a5a6; display: block; margin-bottom: 4px; }
+        hr { border: 0; border-top: 1px solid #eee; margin: 20px 0; }
+    </style>
+</head>
+<body>
+
+    <h1>Mandarin Practice</h1>
+
+    <div class="section-container">
+        <h2>Vocabulary (1-50)</h2>
+        <div class="grid-container" id="vocabGrid"></div>
+    </div>
+
+    <div class="section-container">
+        <h2>Practice Sentences</h2>
+        <div class="sentence-list" id="sentenceList"></div>
+    </div>
+
+    <script>
+        const vocabulary = [
+            "一年級", "二年級", "四年級", "八年級", "九年級",
+            "十年級", "十一年級", "十二年級", "住在", "哪裡",
+            "路", "老師", "醫生", "護士", "警察",
+            "工程師", "不上班", "還沒上學", "玩玩具", "足球",
+            "娃娃", "火車", "小熊", "踢足球", "吃東西",
+            "桌子", "椅子", "門", "窗戶", "上",
+            "下", "旁邊", "農場", "怎麼", "一起",
+            "開車", "坐車", "走路", "坐校車", "坐火車",
+            "騎馬", "澆水", "餵…吃…", "紅蘿蔔", "草",
+            "雞", "玉米", "蔬菜", "豆子", "南瓜"
+        ];
+
+        const sentences = [
+            "我們昨天和 Alex 家一起開車去農場，我們在農場騎馬、餵動物吃東西。",
+            "農場裡有很多蔬菜和水果，玉米和南瓜都很甜。小豬很可愛，可是有一點髒。",
+            "我星期六上中文課、星期日打籃球。我五歲開始打籃球，你打籃球打多久了？",
+            "因為彈鋼琴很難，所以我不太喜歡彈鋼琴。我星期五要打網球，你可以一起來嗎？",
+            "我的生日是二月十八日，我的慶生會在星期日下午，你可以來嗎？",
+            "今天是爺爺的生日，我們先唱生日快樂歌，再切蛋糕。我們先在家聊天，再出去看電影。",
+            "Jill 一家人用刀子和叉子吃飯，用湯匙喝湯。他看過年糕，可是沒有吃過。",
+            "廁所在樓梯的右邊，我的房間在樓梯的左邊。媽媽需要我們幫忙。我來收碗盤，你來擦桌子。"
+        ];
+
+        function speak(text) {
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'zh-CN';
+            utterance.rate = 0.85; // Slightly slower for longer sentences
+            window.speechSynthesis.speak(utterance);
+        }
+
+        // Build Vocabulary Buttons
+        const vocabGrid = document.getElementById('vocabGrid');
+        vocabulary.forEach((word, i) => {
+            const btn = document.createElement('button');
+            btn.className = 'vocab-btn';
+            btn.innerHTML = `<span class="index">${i + 1}</span>${word}`;
+            btn.onclick = () => speak(word);
+            vocabGrid.appendChild(btn);
+        });
+
+        // Build Sentence Buttons
+        const sentenceList = document.getElementById('sentenceList');
+        sentences.forEach((text, i) => {
+            const btn = document.createElement('button');
+            btn.className = 'sentence-btn';
+            btn.innerHTML = `<span class="index">Sentence ${i + 1}</span>${text}`;
+            btn.onclick = () => speak(text);
+            sentenceList.appendChild(btn);
+        });
+    </script>
+</body>
+</html>
