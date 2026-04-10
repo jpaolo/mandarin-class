@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mandarin Practice - Compare Voice</title>
+    <style>
+        body { font-family: 'PingFang SC', sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+        .tab-btn { padding: 10px 25px; font-size: 1.1rem; cursor: pointer; border: none; border-radius: 5px; background: #bdc3c7; color: white; }
+        .tab-btn.active { background: #2c3e50; }
+        .container { max-width: 1200px; width: 100%; display: none; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .container.active { display: block; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; margin-bottom: 30px; }
+       
+        .item-wrapper { display: flex; flex-direction: row; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; background: #fff; height: 70px; }
+        .vocab-text-btn { flex: 2; padding: 10px; border: none; background: none; cursor: pointer; text-align: left; font-size: 1rem; color: #2c3e50; font-weight: bold; border-right: 1px solid #eee; }
+        .vocab-text-btn:hover { background: #f0f8ff; }
+       
+        .controls-column { display: flex; flex-direction: column; width: 50px; }
+        .control-btn { flex: 1; border: none; cursor: pointer; background: #fff; font-size: 1rem; display: flex; align-items: center; justify-content: center; transition: 0.2s; border-bottom: 1px solid #eee; }
+        .control-btn:last-child { border-bottom: none; }
+       
+        .rec-btn:hover { background: #fff5f5; color: #e74c3c; }
+        .rec-btn.recording { background: #e74c3c; color: white; animation: pulse 1.5s infinite; }
+        .play-back-btn:hover { background: #f4fdf4; color: #27ae60; }
+        .play-back-btn:disabled { color: #ccc; cursor: not-allowed; background: #fafafa; }
+
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+
+        .sentence-item { height: auto; min-height: 80px; margin-bottom: 15px; }
+        .sentence-text-btn { text-align: left; padding: 15px; font-size: 1.1rem; line-height: 1.5; color: #444; border: none; background: none; flex: 1; cursor: pointer; border-right: 1px solid #eee; }
+       
+        .index { font-size: 0.7rem; color: #999; display: block; margin-bottom: 2px; }
+        h2 { border-bottom: 2px solid #eee; padding-bottom: 10px; color: #34495e; }
+    </style>
+</head>
+<body>
+
+    <h1>Listen, Record & Compare</h1>
+    <div class="tabs">
+        <button class="tab-btn active" onclick="showTab(event, 'cfl4')">CFL Level 4</button>
+        <button class="tab-btn" onclick="showTab(event, 'cfl5')">CFL Level 5</button>
+    </div>
+
+    <div id="cfl4" class="container active">
+        <h2>CFL4 Vocabulary</h2><div class="grid" id="grid4"></div>
+        <h2>CFL4 Sentences</h2><div class="sentence-list" id="list4"></div>
+    </div>
+
+    <div id="cfl5" class="container">
+        <h2>CFL5 Vocabulary</h2><div class="grid" id="grid5"></div>
+        <h2>CFL5 Sentences</h2><div class="sentence-list" id="list5"></div>
+    </div>
+
+    <script>
+        const cfl4Vocab = ["穿", "粉紅色", "咖啡色", "紫色", "衣服", "好看", "一件", "一條", "哪…", "那", "太…了", "鬆", "緊", "剛好", "這", "一雙", "還不錯", "怎麼樣", "便宜", "比", "洋裝", "高跟鞋", "襯衫", "多少錢", "看", "又…又", "十塊錢", "暑假", "中國", "常常", "舒服", "北京", "紐約", "叔叔", "貓熊", "飛機", "不常", "家人", "一次", "外公", "火箭", "音樂", "科學", "參加", "夏令營", "做", "不客氣", "科學課", "聽起來", "寫書法", "早上", "教授", "起床", "幾點", "每天", "七點二十分", "七點半", "放學", "蠶寶寶", "第一節課", "數學課", "體育課", "社會科", "英文課", "音樂課", "辦公室", "教室", "前面", "後面", "舊", "禮堂", "新", "中間", "籃球場", "圖書館", "籃球隊", "練習", "合唱團", "樂隊", "棒球隊", "足球隊", "游泳隊"];
+        const cfl5Vocab = ["阿姨", "您", "附近", "前院", "後院", "車庫", "校長", "長", "樣子", "毛", "如果", "給", "零", "借", "百科全書", "找不到", "圖書館員", "哪裡", "故事書", "眼科醫生", "一本書", "好看", "三個星期", "上網", "續借", "眼鏡", "上面", "這裡", "蛀牙", "牙醫", "下面", "冷", "刷牙", "刷", "帶", "幾次", "牙線", "下雪", "看不清楚", "可能", "近視", "知道", "戴", "奇怪", "電腦", "小時", "每", "半小時", "休息", "冬天", "熱", "下雨", "雨傘", "雨衣", "雨鞋", "防曬油", "明天", "天氣", "出太陽", "後天", "最近", "漫畫書", "刮風", "夏天", "季節", "海邊", "春天", "湖邊", "山上", "玩水", "擦", "補牙", "牙齒", "秋天", "太陽眼鏡", "堆沙堡", "釣魚", "姑姑", "寶寶", "像", "姑丈", "龍", "出生", "屬", "哪一年", "吋", "蛇", "老虎", "重", "磅", "高", "老鼠", "現在", "呎", "表姊", "愛", "祝", "平安", "百"];
+        const cfl4Sentences = ["1. 我暑假去了紐約看外公外婆。我不常去紐約，我一年去一次。你暑假去了哪裡？", "2. 我參加了科學夏令營。我們做了飛機和火箭，還去了科學博物館。我可以教你做火箭。", "3. 我每天早上都七點二十分起床，八點上學。今天第一節課是科學課，第二節是社會課。我最喜歡社會課。", "4. 我在學校參加籃球隊，籃球隊每個星期二下午三點半練習。我們籃球場在禮堂後面，籃球場很新。你要去看看嗎？", "5. 我的小狗不見了。請問您看到牠了嗎？牠是咖啡色的，毛長長的. 如果您看到我的小狗，請打電話給我。謝謝！", "6. 我要借這三本故事書。故事書可以借三個星期，也可以上網續借。百科全書呢？百科全書可以借多久？", "7. 哥哥牙齒痛，媽媽帶他去看牙醫。他蛀牙了，需要補牙。我每天刷牙、用牙線，所以我沒有蛀牙。", "8. 我眼睛看不清楚，我可能近視了。我常常看書，我每天看書看兩個小時。眼科醫生要我每半小時，休息十分鐘。"];
+        const cfl5Sentences = ["1. 最近天氣真奇怪。昨天上午很冷，可是下午很熱。今天上午會下雨，下午會出太陽。明天天氣怎麼樣？", "2. 我喜歡夏天。夏天的時候，爸爸常常帶我們去海邊玩。我們先擦防曬油、戴帽子，再去堆沙堡。你喜歡什麼季節？", "3. 後天是中秋節。後天早上，我們去機場接叔叔。飛機十點到。後天晚上，我們想去後院賞月。我們一邊賞月，一邊吃月餅。", "4. 晚餐後，我們到後院賞月吃月餅。我先把桌子搬到後院，再把盤子放到桌子上。媽媽把月餅拿出來。媽媽，請給我一個月餅，我要綠茶口味的月餅。", "5. 對不起，我這麼晚打電話給你。我寄了一封電子郵件給你，你收到了嗎？我想找你一起去圖書館寫報告。", "6. 我們用電腦做報告，你覺得哪一個主題比較好？中秋節還是中國新年？我們還需要更多圖片嗎？報告裡可以加上錄音檔案嗎？", "7. 弟弟是2012年出生的，他屬龍。他長得像爸爸。他五十磅。弟弟比我重。你多重？", "8. 喜宴六點開始，我不知道要穿什麼衣服。我穿洋裝，好不好？喜宴快開始了，新郎看起來很緊張。"];
+
+        let mediaRecorder;
+        let audioChunks = [];
+        const recordings = {}; // Stores audio URLs by ID
+
+        function speak(text) {
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'zh-CN';
+            utterance.rate = 0.85;
+            window.speechSynthesis.speak(utterance);
+        }
+
+        async function startRecording(btn, id, playBtn) {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(stream);
+            audioChunks = [];
+           
+            mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+            mediaRecorder.onstop = () => {
+                const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                recordings[id] = URL.createObjectURL(audioBlob);
+                playBtn.disabled = false;
+                btn.classList.remove('recording');
+                btn.innerText = "🎤";
+            };
+
+            mediaRecorder.start();
+            btn.classList.add('recording');
+            btn.innerText = "⏹";
+        }
+
+        function createItem(text, index, isSentence, prefix) {
+            const id = prefix + '-' + index;
+            const wrapper = document.createElement('div');
+            wrapper.className = isSentence ? 'item-wrapper sentence-item' : 'item-wrapper';
+           
+            const mainBtn = document.createElement('button');
+            mainBtn.className = isSentence ? 'sentence-text-btn' : 'vocab-text-btn';
+            mainBtn.innerHTML = `<span class="index">${index}</span>${text}`;
+            mainBtn.onclick = () => speak(text);
+
+            const col = document.createElement('div');
+            col.className = 'controls-column';
+
+            const playBackBtn = document.createElement('button');
+            playBackBtn.className = 'control-btn play-back-btn';
+            playBackBtn.innerHTML = '▶️';
+            playBackBtn.disabled = true;
+            playBackBtn.title = "Play your recording";
+            playBackBtn.onclick = () => {
+                if(recordings[id]) new Audio(recordings[id]).play();
+            };
+
+            const recBtn = document.createElement('button');
+            recBtn.className = 'control-btn rec-btn';
+            recBtn.innerHTML = '🎤';
+            recBtn.title = "Record your voice";
+            recBtn.onclick = () => {
+                if (mediaRecorder && mediaRecorder.state === "recording") {
+                    mediaRecorder.stop();
+                } else {
+                    startRecording(recBtn, id, playBackBtn);
+                }
+            };
+
+            col.appendChild(recBtn);
+            col.appendChild(playBackBtn);
+            wrapper.appendChild(mainBtn);
+            wrapper.appendChild(col);
+            return wrapper;
+        }
+
+        function showTab(event, id) {
+            document.querySelectorAll('.container, .tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+
+        cfl4Vocab.forEach((t, i) => grid4.appendChild(createItem(t, i+1, false, 'v4')));
+        cfl5Vocab.forEach((t, i) => grid5.appendChild(createItem(t, i+1, false, 'v5')));
+        cfl4Sentences.forEach((t, i) => list4.appendChild(createItem(t, 'S' + (i+1), true, 's4')));
+        cfl5Sentences.forEach((t, i) => list5.appendChild(createItem(t, 'S' + (i+1), true, 's5')));
+    </script>
+</body>
+</html>
